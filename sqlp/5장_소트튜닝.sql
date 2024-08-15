@@ -62,3 +62,20 @@ from (
 )
 where no >= (:page-1)*10 + 1;
 
+-- 5.3.3 최소값/최대값 구하기
+
+create index emp_x1 on 사원(급여);
+
+select max(급여) from 사원;
+
+drop index emp_x1;
+create index emp_x1 on 사원(부서코드, 관리자ID, 급여);
+
+select max(급여) from 사원 where 부서코드 = 30 and 관리자id = 7698;
+
+-- 5.3.5 Sort Group By 생략
+
+desc 고객;
+
+select 관리자사원번호, avg(최종주문금액), count(*) from 고객
+group by 관리자사원번호;
