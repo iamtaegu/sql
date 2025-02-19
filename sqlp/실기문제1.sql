@@ -1,0 +1,8 @@
+CREATE TABLE 실기1_주문 (
+    주문번호 NUMBER NOT NULL
+    , 주문일시 DATE NOT NULL
+    , 주문유형코드 VARCHAR2(10) NOT NULL
+    , CONSTRAINT 실기1_주문_PK PRIMARY KEY (주문번호) USING INDEX LOCAL
+);
+
+

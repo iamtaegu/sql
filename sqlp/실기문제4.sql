@@ -24,7 +24,7 @@ SELECT 주문고객번호, 주문일시, 주문금액, 우편번호, 배송지 FROM 주문
 WHERE 주문고객번호 IS NULL 
 AND 주문일시 >= to_date(:start_date, 'yyyymmdd') 
 AND 주문일시 < to_date(:end_date, 'yyyymmdd') + 1 
-;
+ORDER BY 2 DESC;
 
 -- 2번 답안
 CREATE INDEX 주문_X1 ON 주문 (주문고객번호, 주문일시);
