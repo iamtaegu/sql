@@ -1,20 +1,31 @@
-ALTER TABLE 고객 
-ADD 등록일시 DATE NOT NULL 
-ADD 고객상태코드 VARCHAR2(1) NOT NULL 
-ADD 연락처 VARCHAR2(14)
-ADD 주소 VARCHAR2(100);
+CREATE TABLE 실기5_고객 (
+    고객번호 NUMBER NOT NULL
+    , 고객명 VARCHAR2(100) NOT NULL
+    , 등록일시 DATE NOT NULL
+    , 고객상태코드 VARCHAR2(2) 
+    , 연락처 VARCHAR2(10) NOT NULL
+    , 주소 VARCHAR2(50) NOT NULL
+    , CONSTRAINT 실기5_고객_PK PRIMARY KEY (고객번호)
+);
 
-ALTER TABLE 고객
-MODIFY 고객상태코드 VARCHAR2(2);
+CREATE TABLE 실기5_고객접속이력 (
+    접속일시 DATE NOT NULL 
+    , 고객번호 NUMBER NOT NULL
+    , 접속경로 VARCHAR2(10) NOT NULL 
+    
+    , CONSTRAINT 실기5_고객접속이력_PK PRIMARY KEY (접속일시, 고객번호)
+    , CONSTRAINT 실기5_고객접속이력_FK FOREIGN KEY (고객번호) 
+        REFERENCES 실기5_고객 (고객번호) 
+); 
 
-CREATE TABLE 고객접속이력 (
-    접속일시 DATE NOT NULL,
-    고객번호 NUMBER NOT NULL,
-    접속경로 VARCHAR2(100),
-    CONSTRAINT 고객접속이력_FK FOREIGN KEY (고객번호)
-        REFERENCES 고객(고객번호)
-)
-;
+COMMIT ;
+/*
+[문제]
+
+블로그 참조 
+
+*/
+
 
 -- 조회/다음
 SELECT
@@ -51,5 +62,12 @@ and a.고객번호 = b.고객번호
 ORDER BY a.등록일시, a.고객번호 -- 1. 
 ;
 
+/*
+[인덱스 설계]
+
+고객 인덱스 : 고객상태번호, 등록일시, 고객번호
+고객접속이력 인덱스 : 고객번호, 접속일시 
+
+*/
 CREATE INDEX 고객_X1 ON 고객 (고객상태코드, 등록일시, 고객번호);
 CREATE INDEX 고객접속이력_X1 ON 고객접속이력 (고객번호, 접속일시);

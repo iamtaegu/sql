@@ -1,12 +1,12 @@
-CREATE TABLE 실기5_고객 (
+CREATE TABLE 실기6_고객 (
     고객번호 NUMBER NOT NULL
     , 고객명 VARCHAR2(100) NOT NULL
     , 고객연락처 VARCHAR2(10) NOT NULL
     , 등록일시 DATE NOT NULL 
-    , CONSTRAINT 실기5_고객_PK PRIMARY KEY (고객번호)
+    , CONSTRAINT 실기6_고객_PK PRIMARY KEY (고객번호)
 );
 
-CREATE TABLE 실기5_주문 (
+CREATE TABLE 실기6_주문 (
     주문번호 NUMBER NOT NULL
     , 주문일자 DATE NOT NULL
     , 주문고객번호 NUMBER NOT NULL
@@ -19,7 +19,7 @@ CREATE TABLE 실기5_주문 (
     , CONSTRAINT 실기5_주문_PK PRIMARY KEY (주문번호)
 );
 
-CREATE TABLE 실기5_배송 (
+CREATE TABLE 실기6_배송 (
     배송번호 NUMBER NOT NULL
     , 주문번호 NUMBER NOT NULL
     , 배송일자 DATE NOT NULL
@@ -30,11 +30,11 @@ CREATE TABLE 실기5_배송 (
 );
 COMMIT;
 
-SELECT * FROM 실기5_고객;
-SELECT * FROM 실기5_주문;
-SELECT * FROM 실기5_배송;
+/*
+[문제] 
 
-/**문제**/
+*/
+
 insert into 주문배송 t
 select /*+ leading(o) use_nl(d) index(d) full(o) parallel(o 4) */
     o.주문번호, o.주문일자, o.주문상품수, o.주문상태코드, o.주문고객번호
@@ -46,7 +46,7 @@ and o.주문번호 = d.주문번호
 ;
 
 /**정답*
-* 다른 트랜잭션에 의한 동시 DML이 없는 야간 배치용 SQL이므로 병렬 DML 활용이 가능하다 -- 1. Direct Path Load 
+* 다른 트랜잭션에 의한 동시 DML이 없는 야간 배치용 SQL이므로 병렬 DML 활용이 가능하다 -- 1. Direct Path Load (?) 
 * 병렬로 Insert 하려면 아래와 같이 parallel DML을 활성화해야 한다 -- 2. 
     - alter session enable parallel dml; 
 
@@ -73,8 +73,9 @@ and o.주문번호 = d.주문번호
 * 고객 테이블은 인덱스만 읽도록 유도했으므로 병렬 처리를 위해 parallel_index 힌트를 사용한다 -- 6. 
 
 */
-insert /*+ append parallel(t 4) */ 주문배송 t -- 1. Direct Path Load 
-select /*+ leading(d) use_hash(o) use_hash(c) -- 3. 
+insert /*+ parallel(t 4) */ into 주문배송 t 
+select /*+ leading(d) 
+            use_hash(o) use_hash(c) -- 3. 
             full(o) full(d) index_ffs(c) -- 4.
             parallel(o 4) parallel(d 4) parallel_index(c 4) */ -- 5, 6 
     o.주문번호, o.주문일자, o.주문상품수, o.주문상태코드, o.주문고객번호, c.고객명
