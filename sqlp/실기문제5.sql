@@ -1,73 +1,78 @@
-CREATE TABLE ½Ç±â5_°í°´ (
-    °í°´¹øÈ£ NUMBER NOT NULL
-    , °í°´¸í VARCHAR2(100) NOT NULL
-    , µî·ÏÀÏ½Ã DATE NOT NULL
-    , °í°´»óÅÂÄÚµå VARCHAR2(2) 
-    , ¿¬¶ôÃ³ VARCHAR2(10) NOT NULL
-    , ÁÖ¼Ò VARCHAR2(50) NOT NULL
-    , CONSTRAINT ½Ç±â5_°í°´_PK PRIMARY KEY (°í°´¹øÈ£)
+CREATE TABLE ì‹¤ê¸°5_ê³ ê° (
+    ê³ ê°ë²ˆí˜¸ NUMBER NOT NULL
+    , ê³ ê°ëª… VARCHAR2(100) NOT NULL
+    , ë“±ë¡ì¼ì‹œ DATE NOT NULL
+    , ê³ ê°ìƒíƒœì½”ë“œ VARCHAR2(2) 
+    , ì—°ë½ì²˜ VARCHAR2(10) NOT NULL
+    , ì£¼ì†Œ VARCHAR2(50) NOT NULL
+    , CONSTRAINT ì‹¤ê¸°5_ê³ ê°_PK PRIMARY KEY (ê³ ê°ë²ˆí˜¸)
 );
 
-CREATE TABLE ½Ç±â5_°í°´Á¢¼ÓÀÌ·Â (
-    Á¢¼ÓÀÏ½Ã DATE NOT NULL 
-    , °í°´¹øÈ£ NUMBER NOT NULL
-    , Á¢¼Ó°æ·Î VARCHAR2(10) NOT NULL 
+CREATE TABLE ì‹¤ê¸°5_ê³ ê°ì ‘ì†ì´ë ¥ (
+    ì ‘ì†ì¼ì‹œ DATE NOT NULL 
+    , ê³ ê°ë²ˆí˜¸ NUMBER NOT NULL
+    , ì ‘ì†ê²½ë¡œ VARCHAR2(10) NOT NULL 
     
-    , CONSTRAINT ½Ç±â5_°í°´Á¢¼ÓÀÌ·Â_PK PRIMARY KEY (Á¢¼ÓÀÏ½Ã, °í°´¹øÈ£)
-    , CONSTRAINT ½Ç±â5_°í°´Á¢¼ÓÀÌ·Â_FK FOREIGN KEY (°í°´¹øÈ£) 
-        REFERENCES ½Ç±â5_°í°´ (°í°´¹øÈ£) 
+    , CONSTRAINT ì‹¤ê¸°5_ê³ ê°ì ‘ì†ì´ë ¥_PK PRIMARY KEY (ì ‘ì†ì¼ì‹œ, ê³ ê°ë²ˆí˜¸)
+    , CONSTRAINT ì‹¤ê¸°5_ê³ ê°ì ‘ì†ì´ë ¥_FK FOREIGN KEY (ê³ ê°ë²ˆí˜¸) 
+        REFERENCES ì‹¤ê¸°5_ê³ ê° (ê³ ê°ë²ˆí˜¸) 
 ); 
 
 COMMIT ;
 /*
-[¹®Á¦]
+[ë¬¸ì œ]
 
-ºí·Î±× ÂüÁ¶ 
+ë¸”ë¡œê·¸ ì°¸ì¡° 
+
+1. OLTP í™˜ê²½ì—ì„œ ì¡°ì¸ë³´ë‹¤ ìŠ¤ì¹¼ë¼ ì„œë¸Œì¿¼ë¦¬ë¥¼ í™œìš©í•œë‹¤
+2. íŽ˜ì´ì§•ì€ Top-N ì²˜ë¦¬ë¥¼ í†µí•´ ì²˜ë¦¬í•œë‹¤
+3. ì •ë ¬ì´ í•„ìš”í•˜ë©´ ì¸ë¼ì¸ ë·°ì—ì„œ ì •ë ¬í•˜ê³ , ì™¸ë¶€ í…Œì´ë¸”ì—ì„œ íŽ˜ì´ì§• ì²˜ë¦¬í•œë‹¤
+4. OLAP í™˜ê²½ì—ì„œëŠ” ì¡°ì¸ì„ í™œìš©í•œë‹¤
 
 */
 
 
--- Á¶È¸/´ÙÀ½
+-- ì¡°íšŒ/ë‹¤ìŒ
 SELECT
-    °í°´¹øÈ£, °í°´¸í, µî·ÏÀÏ½Ã, ¿¬¶ôÃ³, ÁÖ¼Ò,
+    ê³ ê°ë²ˆí˜¸, ê³ ê°ëª…, ë“±ë¡ì¼ì‹œ, ì—°ë½ì²˜, ì£¼ì†Œ,
     (
-        SELECT MAX(Á¢¼ÓÀÏ½Ã) FROM °í°´Á¢¼ÓÀÌ·Â -- 3.
-        WHERE °í°´¹øÈ£ = a.°í°´¹øÈ£
-        AND Á¢¼ÓÀÏ½Ã >= trunc(add_months(sysdate, - 1)) -- 2. 
-    ) ÃÖÁ¾Á¢¼ÓÀÏ½Ã
+        SELECT MAX(ì ‘ì†ì¼ì‹œ) FROM ê³ ê°ì ‘ì†ì´ë ¥ -- 3.
+        WHERE ê³ ê°ë²ˆí˜¸ = a.ê³ ê°ë²ˆí˜¸
+        AND ì ‘ì†ì¼ì‹œ >= trunc(add_months(sysdate, - 1)) -- 2. 
+    ) ìµœì¢…ì ‘ì†ì¼ì‹œ
 FROM (
         SELECT
             ROWNUM AS no, a.*
         FROM (
                 SELECT
-                    °í°´¹øÈ£, °í°´¸í, µî·ÏÀÏ½Ã, ¿¬¶ôÃ³, ÁÖ¼Ò
-                FROM °í°´
-                WHERE °í°´»óÅÂÄÚµå = 'AC' -- 1.
-                ORDER BY µî·ÏÀÏ½Ã, °í°´¹øÈ£ -- 1. 
+                    ê³ ê°ë²ˆí˜¸, ê³ ê°ëª…, ë“±ë¡ì¼ì‹œ, ì—°ë½ì²˜, ì£¼ì†Œ
+                FROM ê³ ê°
+                WHERE ê³ ê°ìƒíƒœì½”ë“œ = 'AC' -- 1.
+                ORDER BY ë“±ë¡ì¼ì‹œ, ê³ ê°ë²ˆí˜¸ -- 1. 
             ) a
         WHERE ROWNUM <= :page * 20 -- 4.
     ) a
 WHERE a.no >= ( :page - 1 ) * 20 + 1 -- 4.
 ;
--- ÆÄÀÏ·Î Ãâ·Â
+-- íŒŒì¼ë¡œ ì¶œë ¥
 SELECT
-    a.°í°´¹øÈ£, a.°í°´¸í, a.µî·ÏÀÏ½Ã, a.¿¬¶ôÃ³, a.ÁÖ¼Ò, b.ÃÖÁ¾Á¢¼ÓÀÏ½Ã 
-FROM °í°´ a, (
-        SELECT °í°´¹øÈ£, MAX(Á¢¼ÓÀÏ½Ã) ÃÖÁ¾Á¢¼ÓÀÏ½Ã FROM °í°´Á¢¼ÓÀÌ·Â -- 3.
-        WHERE Á¢¼ÓÀÏ½Ã >= trunc(add_months(sysdate, - 1)) -- 2.
-        GROUP BY °í°´¹øÈ£
+    a.ê³ ê°ë²ˆí˜¸, a.ê³ ê°ëª…, a.ë“±ë¡ì¼ì‹œ, a.ì—°ë½ì²˜, a.ì£¼ì†Œ, b.ìµœì¢…ì ‘ì†ì¼ì‹œ 
+FROM ê³ ê° a, (
+        SELECT ê³ ê°ë²ˆí˜¸, MAX(ì ‘ì†ì¼ì‹œ) ìµœì¢…ì ‘ì†ì¼ì‹œ FROM ê³ ê°ì ‘ì†ì´ë ¥ -- 3.
+        WHERE ì ‘ì†ì¼ì‹œ >= trunc(add_months(sysdate, - 1)) -- 2.
+        GROUP BY ê³ ê°ë²ˆí˜¸
     ) b
-WHERE a.°í°´»óÅÂÄÚµå = 'AC' -- 1.
-and a.°í°´¹øÈ£ = b.°í°´¹øÈ£
-ORDER BY a.µî·ÏÀÏ½Ã, a.°í°´¹øÈ£ -- 1. 
+WHERE a.ê³ ê°ìƒíƒœì½”ë“œ = 'AC' -- 1.
+and a.ê³ ê°ë²ˆí˜¸ = b.ê³ ê°ë²ˆí˜¸
+ORDER BY a.ë“±ë¡ì¼ì‹œ, a.ê³ ê°ë²ˆí˜¸ -- 1. 
 ;
 
 /*
-[ÀÎµ¦½º ¼³°è]
+[ì¸ë±ìŠ¤ ì„¤ê³„]
 
-°í°´ ÀÎµ¦½º : °í°´»óÅÂ¹øÈ£, µî·ÏÀÏ½Ã, °í°´¹øÈ£
-°í°´Á¢¼ÓÀÌ·Â ÀÎµ¦½º : °í°´¹øÈ£, Á¢¼ÓÀÏ½Ã 
+ê³ ê° ì¸ë±ìŠ¤ : ê³ ê°ìƒíƒœë²ˆí˜¸, ë“±ë¡ì¼ì‹œ, ê³ ê°ë²ˆí˜¸
+ê³ ê°ì ‘ì†ì´ë ¥ ì¸ë±ìŠ¤ : ê³ ê°ë²ˆí˜¸, ì ‘ì†ì¼ì‹œ 
 
 */
-CREATE INDEX °í°´_X1 ON °í°´ (°í°´»óÅÂÄÚµå, µî·ÏÀÏ½Ã, °í°´¹øÈ£);
-CREATE INDEX °í°´Á¢¼ÓÀÌ·Â_X1 ON °í°´Á¢¼ÓÀÌ·Â (°í°´¹øÈ£, Á¢¼ÓÀÏ½Ã);
+CREATE INDEX ê³ ê°_X1 ON ê³ ê° (ê³ ê°ìƒíƒœì½”ë“œ, ë“±ë¡ì¼ì‹œ, ê³ ê°ë²ˆí˜¸);
+CREATE INDEX ê³ ê°ì ‘ì†ì´ë ¥_X1 ON ê³ ê°ì ‘ì†ì´ë ¥ (ê³ ê°ë²ˆí˜¸, ì ‘ì†ì¼ì‹œ);
